@@ -1,11 +1,12 @@
 package com.apple.shop;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -32,10 +33,26 @@ public class ItemController {
 	}
 	
 	@PostMapping("/add")
-	String addPost(@RequestParam(name="title") String title, 
-				   @RequestParam(name="price") String price) {
-
+	String addPost(@RequestParam String title, 
+				   @RequestParam Integer price) {
+		Item item = new Item();
+		item.setTitle(title);
+		item.setPrice(price);
+		itemRepository.save(item);
 		return "redirect:/list";
+	}
+	
+	@GetMapping("/detail/{id}")
+	String detail(@PathVariable Long id, Model model) {
+		Optional<Item> result = itemRepository.findById(id);
+		if (result.isPresent()) {
+			model.addAttribute("data", result.get());
+			return "detail.html";
+		} else {
+			return "redirect:/list";
+		}
+		
+		
 	}
 
 }
